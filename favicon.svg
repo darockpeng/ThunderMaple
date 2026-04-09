@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Thunder Maple minimalist favicon">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1E1A16"/>
+      <stop offset="100%" stop-color="#2A241F"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F3B37A"/>
+      <stop offset="100%" stop-color="#E06B2A"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="64" height="64" rx="16" fill="url(#bg)"/>
+  <rect x="8" y="8" width="48" height="48" rx="12" fill="none" stroke="rgba(255,252,248,.12)"/>
+
+  <path d="M22 18h20" stroke="url(#accent)" stroke-width="3.2" stroke-linecap="round"/>
+  <path d="M32 18v28" stroke="url(#accent)" stroke-width="3.2" stroke-linecap="round"/>
+  <path d="M24 28h16" stroke="#FFFCF8" stroke-width="2.6" stroke-linecap="round" opacity=".95"/>
+  <path d="M24 36h10" stroke="#FFFCF8" stroke-width="2.6" stroke-linecap="round" opacity=".95"/>
+</svg>
