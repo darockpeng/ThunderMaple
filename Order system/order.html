@@ -283,6 +283,11 @@ footer{background:var(--ink);padding:2rem 5vw;display:flex;justify-content:space
   body{background:#fff}
   .shell{grid-template-columns:1fr;padding:0}
   .panel{box-shadow:none;border:none;position:static}
+  /* print-receipt mode: hide everything except the order panel */
+  body.print-receipt .page-title{display:none !important}
+  body.print-receipt .shell > section{display:none !important}
+  body.print-receipt .cart-list{max-height:none !important}
+  body.print-receipt .panel{border:1px solid #ccc !important}
 }
 </style>
 </head>
@@ -299,7 +304,7 @@ footer{background:var(--ink);padding:2rem 5vw;display:flex;justify-content:space
 
 <div class="page-title">
   <h1>Order <em>fresh sushi</em>, delivered on time.</h1>
-  <p>Build your order below — 48h advance notice, free delivery on orders $80+.</p>
+  <p>Build your order below — 48h advance notice · free delivery on orders $80+, otherwise a flat $10 delivery fee applies.</p>
 </div>
 
 <main class="shell">
@@ -329,7 +334,7 @@ footer{background:var(--ink);padding:2rem 5vw;display:flex;justify-content:space
         <div class="tr"><span>Subtotal</span><span id="subtotal">$0.00</span></div>
         <div class="tr" id="discountRow" style="display:none"><span id="discountLabel">Promo</span><span id="discount">–$0.00</span></div>
         <div class="tr" id="taxRow"><span>HST (13%)</span><span id="tax">$0.00</span></div>
-        <div class="tr" id="deliveryRow"><span>Delivery <small id="deliveryNote" style="opacity:.7"></small></span><span id="delivery">$0.00</span></div>
+        <div class="tr" id="deliveryRow"><span>Delivery <small id="deliveryNote" style="opacity:.7;white-space:nowrap"></small></span><span id="delivery">$0.00</span></div>
         <div class="tr total"><span>Total</span><span id="total">$0.00</span></div>
       </div>
       <div class="warnings" id="warnings" style="display:none"></div>
@@ -409,7 +414,7 @@ footer{background:var(--ink);padding:2rem 5vw;display:flex;justify-content:space
     <p id="modalDetail" style="font-size:12px;color:var(--tweak-muted)"></p>
     <div class="modal-actions">
       <button class="btn primary" onclick="closeModal()">Done</button>
-      <button class="btn ghost" onclick="window.print()">Print receipt</button>
+      <button class="btn ghost" onclick="document.body.classList.add('print-receipt');window.addEventListener('afterprint',()=>document.body.classList.remove('print-receipt'),{once:true});window.print()">Print receipt</button>
     </div>
   </div>
 </div>
@@ -611,7 +616,10 @@ function renderCart(){
   document.getElementById('subtotal').textContent = money(totals.subtotal);
   document.getElementById('tax').textContent = money(totals.tax);
   document.getElementById('delivery').textContent = totals.delivery===0 ? 'FREE' : money(totals.delivery);
-  document.getElementById('deliveryNote').textContent = totals.subtotal >= FREE_DELIVERY_THRESHOLD ? '(free over $80)' : '(under $80)';
+  const remaining = (FREE_DELIVERY_THRESHOLD - totals.subtotal).toFixed(2);
+  document.getElementById('deliveryNote').textContent = totals.subtotal >= FREE_DELIVERY_THRESHOLD
+    ? '(free — orders $80+)'
+    : `($10 fee · add $${remaining} more for free delivery)`;
   document.getElementById('total').textContent = money(totals.total);
   if(totals.discount>0){
     document.getElementById('discountRow').style.display='flex';
@@ -825,7 +833,11 @@ document.getElementById('orderForm').onsubmit = async (e) => {
   }
 };
 
-document.getElementById('printBtn').onclick = () => window.print();
+document.getElementById('printBtn').onclick = () => {
+  document.body.classList.add('print-receipt');
+  window.addEventListener('afterprint', () => document.body.classList.remove('print-receipt'), {once:true});
+  window.print();
+};
 
 function showSuccess(p, detail){
   document.getElementById('modalOrderNo').textContent = p.order_number;
