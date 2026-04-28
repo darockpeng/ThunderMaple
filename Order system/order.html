@@ -398,7 +398,7 @@ footer{background:var(--ink);padding:2rem 5vw;display:flex;justify-content:space
 
 <footer>
   <div><img src="../assets/logos/Logo-TMAFC1022-WideWhite.png" alt="Thunder Maple" style="height:34px;width:auto;opacity:.7;"></div>
-  <div class="footer-copy">© 2025 Thunder Maple Asian Food Company · All rights reserved</div>
+  <div class="footer-copy">© 2026 Thunder Maple Asian Food Company · All rights reserved</div>
   <div class="footer-loc">📍 Thunder Bay, Ontario</div>
 </footer>
 
@@ -849,7 +849,10 @@ function updateHistory(){
     link.style.display='inline';
     link.onclick = () => {
       const w = window.open('', '_blank');
-      w.document.write('<pre style="font-family:ui-monospace,monospace;padding:20px;white-space:pre-wrap">' + hist.map(payloadToText).join('\n\n———\n\n') + '</pre>');
+      w.document.open();
+      w.document.write('<html><body><pre id="r" style="font-family:ui-monospace,monospace;padding:20px;white-space:pre-wrap"></pre></body></html>');
+      w.document.close();
+      w.document.getElementById('r').textContent = hist.map(payloadToText).join('\n\n———\n\n');
     };
   }
 }
