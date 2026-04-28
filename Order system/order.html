@@ -217,7 +217,6 @@ nav#nav.scrolled{background:rgba(253,248,242,.95);backdrop-filter:blur(14px);box
 
 /* submit area */
 .submit-area{margin-top:22px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.submit-note{font-size:12px;color:var(--tweak-muted);margin-top:10px;max-width:420px;line-height:1.5}
 .btn{
   padding:13px 22px;border-radius:100px;border:1.5px solid var(--tweak-ink);
   font-size:14px;font-weight:600;letter-spacing:.02em;
@@ -279,7 +278,7 @@ footer{background:var(--ink);padding:2rem 5vw;display:flex;justify-content:space
 
 /* print layout for receipt */
 @media print{
-  nav#nav,.tweak-panel,.cat-tabs,.search-wrap,.submit-area,.qty,.promo,.modal-bg,footer,.form-section{display:none !important}
+  nav#nav,.tweak-panel,.cat-tabs,.search-wrap,.submit-area,.qty,.promo,.modal-bg,footer,.form-section,.panel-cta{display:none !important}
   body{background:#fff}
   .shell{grid-template-columns:1fr;padding:0}
   .panel{box-shadow:none;border:none;position:static}
@@ -295,7 +294,7 @@ footer{background:var(--ink);padding:2rem 5vw;display:flex;justify-content:space
 
 <div class="sbar" id="sbar"></div>
 <nav id="nav">
-  <a href="../index.html" aria-label="Thunder Maple home"><img src="assets/logo.png" alt="Thunder Maple" style="height:34px;width:auto;"></a>
+  <a href="../index.html" aria-label="Thunder Maple home"><img src="../assets/logos/Logo-TMAFC1022-Wide.png" alt="Thunder Maple" style="height:34px;width:auto;"></a>
   <ul class="nav-links">
     <li><a href="../index.html">Home</a></li>
     <li><a href="#" class="current">Order</a></li>
@@ -338,7 +337,7 @@ footer{background:var(--ink);padding:2rem 5vw;display:flex;justify-content:space
         <div class="tr total"><span>Total</span><span id="total">$0.00</span></div>
       </div>
       <div class="warnings" id="warnings" style="display:none"></div>
-      <div style="padding:16px 20px">
+      <div class="panel-cta" style="padding:16px 20px">
         <button class="btn primary" style="width:100%;justify-content:center" onclick="document.getElementById('form-section').scrollIntoView({behavior:'smooth'})">Continue to details →</button>
       </div>
     </div>
@@ -388,9 +387,7 @@ footer{background:var(--ink);padding:2rem 5vw;display:flex;justify-content:space
 
       <div class="submit-area">
         <button type="submit" class="btn primary" id="submitBtn">Submit order →</button>
-        <button type="button" class="btn ghost" id="printBtn">Print / Save PDF</button>
       </div>
-      <div class="submit-note" id="submitNote">Your order will be sent to Thunder Maple. You'll get a confirmation email within the same business day.</div>
       <div class="history">
         <span id="historyInfo"></span>
         <a id="historyLink" style="display:none">View order history</a>
@@ -400,7 +397,7 @@ footer{background:var(--ink);padding:2rem 5vw;display:flex;justify-content:space
 </div>
 
 <footer>
-  <div><img src="assets/logo.png" alt="Thunder Maple" style="height:34px;width:auto;filter:brightness(0) invert(1);opacity:.7;"></div>
+  <div><img src="../assets/logos/Logo-TMAFC1022-WideWhite.png" alt="Thunder Maple" style="height:34px;width:auto;opacity:.7;"></div>
   <div class="footer-copy">© 2025 Thunder Maple Asian Food Company · All rights reserved</div>
   <div class="footer-loc">📍 Thunder Bay, Ontario</div>
 </footer>
@@ -699,7 +696,7 @@ document.getElementById('promoBtn').onclick = () => {
     promo = null;
     const msg = document.getElementById('promoMsg');
     msg.className='promo-msg err';
-    msg.textContent = 'Code not recognised. Try MAPLE10, TEAM15, FIRST5.';
+    msg.textContent = 'Code not recognised. Please check and try again.';
   }
   renderCart();
 };
@@ -820,11 +817,6 @@ document.getElementById('orderForm').onsubmit = async (e) => {
     });
     if(!r.ok) throw new Error('Submission failed');
     showSuccess(payload, `A copy has been sent to hello@thundermaple.ca. We'll confirm shortly.`);
-    // reset cart
-    cart.clear();
-    renderMenu();
-    renderCart();
-    form.reset();
   } catch(err) {
     alert(`Submission failed — please try again, or call (579) 484-2228.\n\n${err.message}`);
   } finally {
@@ -833,18 +825,18 @@ document.getElementById('orderForm').onsubmit = async (e) => {
   }
 };
 
-document.getElementById('printBtn').onclick = () => {
-  document.body.classList.add('print-receipt');
-  window.addEventListener('afterprint', () => document.body.classList.remove('print-receipt'), {once:true});
-  window.print();
-};
-
 function showSuccess(p, detail){
   document.getElementById('modalOrderNo').textContent = p.order_number;
   document.getElementById('modalDetail').textContent = detail || '';
   document.getElementById('modalBg').classList.add('open');
 }
-function closeModal(){ document.getElementById('modalBg').classList.remove('open'); }
+function closeModal(){
+  document.getElementById('modalBg').classList.remove('open');
+  cart.clear();
+  renderMenu();
+  renderCart();
+  document.getElementById('orderForm').reset();
+}
 window.closeModal = closeModal;
 
 // history link
