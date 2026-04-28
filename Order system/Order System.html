@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Thunder Maple — Order Online</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="menu_data.js"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" src="components.jsx"></script>
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useMemo, useRef } = React;
+
+function App() {
+  const [settings, setSettings] = useState(window.TWEAK_DEFAULTS_SEED || {
+    theme: "paper", itemUI: "stepper", showTax: true, showDelivery: true,
+    enforceMinOrder: "warn", submitTarget: "mailto", webhookUrl: "", formspreeUrl: ""
+  });
+
+  const [qtys, setQtys] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("tm_qtys") || "{}"); } catch { return {}; }
+  });
+  const [customer, setCustomer] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("tm_customer") || "null") || {
+      name: "", phone: "", email: "", company: "", address: "", deliveryDate: "", deliveryTime: "", dietary: ""
+    }; } catch { return { name: "", phone: "", email: "", company: "", address: "", deliveryDate: "", deliveryTime: "", dietary: "" }; }
+  });
+  const [promo, setPromo] = useState("");
+  const [promoState, setPromoState] = useState({ valid: false, msg: "" });
+  const [submitState, setSubmitState] = useState("idle");
+  const [lastOrder, setLastOrder] = useState(null);
+  const [activeCat, setActiveCat] = useState(window.TM_MENU[0].category);
+  const [tweaksVisible, setTweaksVisible] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
+
+  // Edit mode wiring
+  useEffect(() => {
+    const onMsg = (e) => {
+      if (!e.data || typeof e.data !== "object") return;
+      if (e.data.type === "__activate_edit_mode") setTweaksVisible(true);
+      if (e.data.type === "__deactivate_edit_mode") setTweaksVisible(false);
+    };
+    window.addEventListener("message", onMsg);
+    window.parent.postMessage({ type: "__edit_mode_available" }, "*");
+    return () => window.removeEventListener("message", onMsg);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", settings.theme);
+  }, [settings.theme]);
+
+  useEffect(() => { localStorage.setItem("tm_qtys", JSON.stringify(qtys)); }, [qtys]);
+  useEffect(() => { localStorage.setItem("tm_customer", JSON.stringify(customer)); }, [customer]);
+
+  const menuFlat = useMemo(() => window.TM_MENU.flatMap(c => c.items.map(i => ({ ...i, category: c.category }))), []);
+  const categories = useMemo(() => window.TM_MENU.map(c => c.category), []);
+
+  const setQty = (code, qty) => {
+    setQtys(q => {
+      const next = { ...q };
+      if (qty <= 0) delete next[code];
+      else next[code] = qty;
+      return next;
+    });
+  };
+
+  // Scroll-spy
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) setActiveCat(entry.target.dataset.category);
+      });
+    }, { rootMargin: "-30% 0px -60% 0px" });
+    document.querySelectorAll(".tm-section").forEach(el => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
+  const scrollTo = (cat) => {
+    const el = document.querySelector(`[data-category="${CSS.escape(cat)}"]`);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    setActiveCat(cat);
+  };
+
+  const buildOrderPayload = () => {
+    const lines = menuFlat.filter(i => (qtys[i.code] || 0) > 0)
+      .map(i => ({ code: i.code, name: i.name, qty: qtys[i.code], price: i.price, lineTotal: i.price * qtys[i.code] }));
+    const subtotal = lines.reduce((s, l) => s + l.lineTotal, 0);
+    const discount = promoState.valid ? (promoState.kind === "pct" ? subtotal * promoState.value : promoState.value) : 0;
+    const afterDiscount = Math.max(0, subtotal - discount);
+    const delivery = settings.showDelivery ? (afterDiscount >= 80 || afterDiscount === 0 ? 0 : 10) : 0;
+    const tax = settings.showTax ? afterDiscount * 0.13 : 0;
+    const total = afterDiscount + delivery + tax;
+    const id = "TM-" + Date.now().toString(36).toUpperCase().slice(-6);
+    return {
+      id, submittedAt: new Date().toISOString(),
+      customer, lines, subtotal, discount, delivery, tax, total,
+      promo: promoState.valid ? { code: promoState.code, label: promoState.label } : null,
+    };
+  };
+
+  const submit = async () => {
+    const order = buildOrderPayload();
+    setSubmitState("sending");
+
+    // Save locally always
+    try {
+      const hist = JSON.parse(localStorage.getItem("tm_orders") || "[]");
+      hist.unshift(order);
+      localStorage.setItem("tm_orders", JSON.stringify(hist.slice(0, 50)));
+    } catch {}
+
+    try {
+      if (settings.submitTarget === "mailto") {
+        const lines = order.lines.map(l => `  ${l.qty}× ${l.name} (${l.code}) @ $${l.price.toFixed(2)} = $${l.lineTotal.toFixed(2)}`).join("\n");
+        const body = `Order ID: ${order.id}
+Submitted: ${new Date(order.submittedAt).toLocaleString()}
+
+CUSTOMER
+Name: ${order.customer.name}
+Phone: ${order.customer.phone}
+Email: ${order.customer.email}
+Company: ${order.customer.company || "—"}
+Address: ${order.customer.address}
+Delivery: ${order.customer.deliveryDate} at ${order.customer.deliveryTime || "—"}
+Dietary notes: ${order.customer.dietary || "—"}
+
+ITEMS
+${lines}
+
+Subtotal: $${order.subtotal.toFixed(2)}
+${order.discount > 0 ? `Discount (${order.promo.label}): -$${order.discount.toFixed(2)}\n` : ""}Delivery: $${order.delivery.toFixed(2)}
+HST (13%): $${order.tax.toFixed(2)}
+TOTAL: $${order.total.toFixed(2)}
+`;
+        const subject = `New Order ${order.id} — ${order.customer.name}`;
+        window.location.href = `mailto:${window.TM_INFO.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      } else if (settings.submitTarget === "formspree" && settings.formspreeUrl) {
+        await fetch(settings.formspreeUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Accept": "application/json" },
+          body: JSON.stringify(order),
+        });
+      } else if (settings.submitTarget === "webhook" && settings.webhookUrl) {
+        await fetch(settings.webhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(order),
+        });
+      }
+    } catch (err) {
+      console.warn("Submit failed, saved locally:", err);
+    }
+
+    setLastOrder(order);
+    setSubmitState("idle");
+    setQtys({});
+    setPromo("");
+    setPromoState({ valid: false, msg: "" });
+  };
+
+  const itemCount = Object.values(qtys).reduce((s, v) => s + v, 0);
+  const info = window.TM_INFO;
+
+  return (
+    <>
+      <header className="tm-header">
+        <div className="tm-header-inner">
+          <div className="tm-brand">
+            <div className="tm-brand-mark"><MapleLeaf size={24} color="#FFF" /></div>
+            <div className="tm-brand-text">
+              <div className="tm-brand-name">Thunder Maple</div>
+              <div className="tm-brand-tag">Sushi · Catering · Thunder Bay</div>
+            </div>
+          </div>
+          <div className="tm-header-meta">
+            <div><strong>{info.phone}</strong><br/>{info.email}</div>
+            <div><strong>48h advance notice</strong><br/>Free delivery $80+</div>
+          </div>
+        </div>
+      </header>
+
+      <section className="tm-hero">
+        <h1>Order <em>for your team</em>,<br/>delivered fresh.</h1>
+        <p>Platters, team combos, and individual sets — built for offices, events, and gatherings across Thunder Bay. Pick your menu below.</p>
+        <dl className="tm-hero-meta">
+          <div><dt>Advance notice</dt><dd>48 hours minimum</dd></div>
+          <div><dt>Delivery</dt><dd>Free on $80+</dd></div>
+          <div><dt>Minimum</dt><dd>1 platter or 5 sets</dd></div>
+          <div><dt>Area</dt><dd>Thunder Bay, ON</dd></div>
+        </dl>
+      </section>
+
+      <main className="tm-layout">
+        <div>
+          <CategoryNav categories={categories} active={activeCat} onPick={scrollTo} />
+          {window.TM_MENU.map(cat => (
+            <section key={cat.category} className="tm-section" data-category={cat.category}>
+              <div className="tm-section-head">
+                <h2>{cat.category}</h2>
+                <span>{cat.items.length} items</span>
+              </div>
+              <ul className="tm-rows">
+                {cat.items.map(item => (
+                  <MenuRow
+                    key={item.code}
+                    item={item}
+                    qty={qtys[item.code] || 0}
+                    onQty={(q) => setQty(item.code, q)}
+                    itemUI={settings.itemUI}
+                  />
+                ))}
+              </ul>
+            </section>
+          ))}
+        </div>
+
+        <OrderSummary
+          menuFlat={menuFlat}
+          qtys={qtys}
+          onQty={setQty}
+          customer={customer}
+          setCustomer={setCustomer}
+          promo={promo}
+          setPromo={setPromo}
+          promoState={promoState}
+          setPromoState={setPromoState}
+          showTax={settings.showTax}
+          showDelivery={settings.showDelivery}
+          enforceMinOrder={settings.enforceMinOrder}
+          onSubmit={submit}
+          submitState={submitState}
+        />
+      </main>
+
+      <footer className="tm-footer">
+        <span>© Thunder Maple · {info.address}</span>
+        <span>{info.phone} · {info.email} · {info.website}</span>
+      </footer>
+
+      <button
+        type="button"
+        className={`tm-fab ${itemCount > 0 ? "visible" : ""}`}
+        onClick={() => {
+          const s = document.querySelector(".tm-summary");
+          if (s) s.scrollIntoView({ behavior: "smooth", block: "start" });
+        }}
+      >
+        <span>View order · {itemCount} item{itemCount !== 1 ? "s" : ""}</span>
+        <span>→</span>
+      </button>
+
+      <Confirmation order={lastOrder} onClose={() => setLastOrder(null)} />
+      <TweaksPanel visible={tweaksVisible} settings={settings} setSettings={setSettings} />
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

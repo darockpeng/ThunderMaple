@@ -1,0 +1,936 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Thunder Maple · Online Order</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Shippori+Mincho:wght@500;700&display=swap" rel="stylesheet">
+<script src="menu_data.js"></script>
+<style>
+:root{
+  --tweak-primary:#E8751A;      /* brand orange (sun) */
+  --tweak-secondary:#127C36;    /* brand green (bamboo) */
+  --tweak-ink:#4A2C1A;          /* brand brown (wordmark) */
+  --tweak-paper:#FBF6EC;        /* warm off-white */
+  --tweak-paper-2:#F3E8D1;      /* warmer cream */
+  --tweak-moss:#127C36;         /* brand green */
+  --tweak-accent:#E8751A;       /* orange */
+  --tweak-line:#4A2C1A;
+  --tweak-muted:#8A6E55;
+  --tweak-danger:#B03A2E;
+  --tweak-radius: 14px;
+  --tweak-font-display:'Fraunces', Georgia, serif;
+  --tweak-font-body:'Inter', system-ui, sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--tweak-font-body);
+  background:var(--tweak-paper);
+  color:var(--tweak-ink);
+  font-size:15px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit}
+button{font-family:inherit}
+
+/* ——— top bar ——— */
+.topbar{
+  background:var(--tweak-ink);
+  color:var(--tweak-paper);
+  padding:10px 24px;
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+}
+.topbar .meta{display:flex;gap:22px;flex-wrap:wrap}
+.topbar .meta span{opacity:.8}
+.topbar .meta b{font-weight:600;opacity:1}
+
+/* ——— hero ——— */
+.hero{
+  background:#fff;
+  padding:14px 24px;
+  border-bottom:1px solid rgba(74,44,26,.15);
+  position:relative;
+}
+.hero-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.brand img.logo{width:52px;height:auto;display:block}
+.hero-right{display:flex;align-items:center;gap:22px;font-size:13px;color:var(--tweak-ink)}
+.hero-right .total-chip{
+  display:inline-flex;align-items:baseline;gap:8px;
+  background:var(--tweak-paper-2);border:1px solid rgba(74,44,26,.18);
+  padding:6px 14px;border-radius:100px;
+}
+.hero-right .total-chip small{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--tweak-muted)}
+.hero-right .total-chip b{font-family:var(--tweak-font-display);font-size:16px;font-weight:700;color:var(--tweak-ink)}
+.hero-nav{display:flex;gap:18px;font-size:13px;color:var(--tweak-muted)}
+.hero-nav a{text-decoration:none;font-weight:500}
+.hero-nav a.current{color:var(--tweak-primary);font-weight:600}
+.page-title{max-width:1200px;margin:22px auto 0;padding:0 24px}
+.page-title h1{font-family:var(--tweak-font-display);font-size:clamp(28px,3.4vw,40px);line-height:1.1;font-weight:700;margin:0 0 4px;letter-spacing:-.01em}
+.page-title h1 em{font-style:italic;color:var(--tweak-primary);font-weight:500}
+.page-title p{color:var(--tweak-muted);font-size:14px;margin:0;max-width:640px}
+
+/* ——— layout ——— */
+.shell{max-width:1200px;margin:0 auto;padding:28px 24px 120px;display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:28px}
+.shell > section, .shell > aside{min-width:0}
+@media (max-width: 960px){.shell{grid-template-columns:minmax(0,1fr);padding-bottom:180px}}
+
+/* ——— menu section ——— */
+.section-title{
+  font-family:var(--tweak-font-display);
+  font-size:28px;font-weight:700;letter-spacing:-.01em;
+  display:flex;align-items:center;gap:14px;margin:0 0 4px;
+}
+.section-title .num{
+  font-family:var(--tweak-font-body);font-weight:500;
+  font-size:12px;letter-spacing:.3em;color:var(--tweak-muted);
+  border:1px solid var(--tweak-ink);border-radius:100px;padding:4px 10px;
+}
+.section-sub{color:var(--tweak-muted);font-size:13px;margin:0 0 18px}
+
+.cat-tabs{display:flex;gap:6px;overflow-x:auto;padding:4px 0 14px;margin:0 -4px;scrollbar-width:thin}
+.cat-tab{
+  flex:0 0 auto;padding:9px 14px;border-radius:100px;
+  background:transparent;border:1px solid rgba(26,20,16,.2);
+  font-size:13px;font-weight:500;color:var(--tweak-ink);cursor:pointer;
+  transition:all .15s;white-space:nowrap;
+}
+.cat-tab:hover{background:rgba(26,20,16,.05)}
+.cat-tab.active{background:var(--tweak-ink);color:var(--tweak-paper);border-color:var(--tweak-ink)}
+.cat-tab .n{opacity:.6;margin-left:6px;font-weight:400}
+
+/* ——— item list (DROPDOWN-first, matches user's request) ——— */
+.cat-block{margin-bottom:28px}
+.cat-head{
+  display:flex;align-items:baseline;justify-content:space-between;
+  border-bottom:1px solid var(--tweak-ink);padding-bottom:6px;margin-bottom:10px;
+}
+.cat-head h3{font-family:var(--tweak-font-display);font-size:22px;margin:0;font-weight:700}
+.cat-head .jp{font-family:var(--tweak-font-display);color:var(--tweak-muted);font-size:12px;letter-spacing:.1em}
+
+.item{
+  display:grid;grid-template-columns:1fr auto auto;gap:18px;align-items:flex-start;
+  padding:14px 4px;border-bottom:1px dashed rgba(26,20,16,.15);
+  transition:background .15s;
+}
+.item.has-qty{background:rgba(212,162,76,.08);border-radius:8px;padding-left:14px;padding-right:14px}
+.item .info{min-width:0}
+.item .name{font-size:15px;font-weight:600;margin:0 0 3px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.item .code{font-family:ui-monospace,monospace;font-size:11px;background:var(--tweak-ink);color:var(--tweak-paper);padding:2px 6px;border-radius:3px;letter-spacing:.04em}
+.item .tag{font-size:10px;padding:2px 7px;border-radius:100px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.tag-popular{background:#FCE5CC;color:#A8520E}
+.tag-new{background:#D4EDD9;color:#0E6129}
+.tag-premium{background:#E9D8E8;color:#6D2A6A}
+.tag-bestvalue{background:var(--tweak-primary);color:#fff}
+.tag-vegan{background:#D4EDD9;color:#0E6129}
+.tag-spicy{background:#FCE5CC;color:#A8520E}
+.tag-savings{background:#FCE5CC;color:#A8520E}
+.item .desc{font-size:13px;color:var(--tweak-muted);margin:0;line-height:1.45}
+.item .meta{font-size:11px;color:var(--tweak-muted);margin-top:4px;letter-spacing:.04em;text-transform:uppercase}
+
+.item .price{font-family:var(--tweak-font-display);font-weight:700;font-size:19px;white-space:nowrap;text-align:right;min-width:58px}
+
+.qty{
+  display:inline-flex;align-items:center;gap:0;
+  border:1.5px solid var(--tweak-ink);border-radius:100px;
+  background:var(--tweak-paper);
+  overflow:hidden;
+}
+.qty button{
+  width:32px;height:32px;border:0;background:transparent;cursor:pointer;
+  font-size:18px;font-weight:600;color:var(--tweak-ink);
+  display:grid;place-items:center;
+}
+.qty button:hover{background:rgba(26,20,16,.08)}
+.qty button:disabled{opacity:.25;cursor:not-allowed}
+.qty input{
+  width:36px;text-align:center;border:0;background:transparent;
+  font-family:var(--tweak-font-body);font-weight:600;font-size:14px;
+  -moz-appearance:textfield;
+}
+.qty input::-webkit-outer-spin-button,.qty input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+
+.search-wrap{position:relative;margin-bottom:18px}
+.search-wrap input{
+  width:100%;padding:12px 16px 12px 40px;
+  background:#fff;border:1px solid rgba(26,20,16,.2);
+  border-radius:100px;font-size:14px;font-family:inherit;
+  color:var(--tweak-ink);
+}
+.search-wrap input:focus{outline:2px solid var(--tweak-primary);outline-offset:0;border-color:transparent}
+.search-wrap::before{
+  content:'';position:absolute;left:14px;top:50%;transform:translateY(-50%);
+  width:16px;height:16px;border:1.5px solid var(--tweak-muted);border-radius:50%;
+}
+.search-wrap::after{
+  content:'';position:absolute;left:26px;top:calc(50% + 5px);
+  width:8px;height:1.5px;background:var(--tweak-muted);transform:rotate(45deg);
+}
+
+/* ——— cart / summary panel ——— */
+.panel{
+  position:sticky;top:18px;align-self:start;
+  background:#fff;border:1px solid var(--tweak-ink);
+  border-radius:var(--tweak-radius);
+  overflow:hidden;
+  box-shadow: 8px 8px 0 var(--tweak-ink);
+}
+.panel h2{
+  font-family:var(--tweak-font-display);font-weight:700;font-size:22px;
+  margin:0;padding:18px 20px 12px;
+  display:flex;align-items:baseline;justify-content:space-between;
+  border-bottom:1px dashed rgba(26,20,16,.2);
+}
+.panel h2 .count{font-family:var(--tweak-font-body);font-size:12px;font-weight:500;color:var(--tweak-muted);letter-spacing:.08em;text-transform:uppercase}
+.cart-list{padding:6px 20px;max-height:340px;overflow:auto}
+.cart-row{display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;padding:8px 0;border-bottom:1px dashed rgba(26,20,16,.12);font-size:13px}
+.cart-row:last-child{border-bottom:0}
+.cart-row .q{font-family:var(--tweak-font-display);font-size:18px;font-weight:700;min-width:26px;text-align:center;color:var(--tweak-primary)}
+.cart-row .nm{font-weight:500;line-height:1.25}
+.cart-row .pr{font-weight:600;white-space:nowrap}
+.cart-row .rm{width:22px;height:22px;border-radius:50%;background:transparent;border:1px solid rgba(26,20,16,.3);cursor:pointer;display:grid;place-items:center;font-size:12px;color:var(--tweak-muted);padding:0;line-height:1}
+.cart-row .rm:hover{background:var(--tweak-danger);color:#fff;border-color:var(--tweak-danger)}
+
+.empty{padding:24px 20px;text-align:center;color:var(--tweak-muted);font-size:13px}
+.empty .arr{font-family:var(--tweak-font-display);font-style:italic;font-size:22px;color:var(--tweak-ink);margin-bottom:6px;display:block}
+
+.totals{padding:12px 20px 0;border-top:1px solid rgba(26,20,16,.15)}
+.tr{display:flex;justify-content:space-between;padding:4px 0;font-size:13px;color:var(--tweak-muted)}
+.tr b{color:var(--tweak-ink);font-weight:600}
+.tr.total{font-family:var(--tweak-font-display);font-size:24px;color:var(--tweak-ink);border-top:2px solid var(--tweak-ink);margin-top:8px;padding-top:10px;font-weight:700}
+.tr.total span:last-child{font-weight:700}
+
+.promo{padding:12px 20px;background:var(--tweak-paper-2);border-top:1px solid rgba(26,20,16,.1)}
+.promo-row{display:flex;gap:6px}
+.promo-row input{flex:1;padding:8px 10px;border:1px solid rgba(26,20,16,.2);border-radius:6px;font-size:13px;font-family:inherit;background:#fff;text-transform:uppercase;letter-spacing:.08em}
+.promo-row button{padding:8px 14px;background:var(--tweak-ink);color:var(--tweak-paper);border:0;border-radius:6px;font-weight:600;font-size:12px;letter-spacing:.06em;cursor:pointer;text-transform:uppercase}
+.promo-msg{font-size:11px;margin-top:6px;color:var(--tweak-moss);font-weight:500}
+.promo-msg.err{color:var(--tweak-danger)}
+
+.warnings{padding:10px 20px;background:#FDEFEA;border-top:1px solid rgba(139,30,30,.2);color:var(--tweak-danger);font-size:12px;line-height:1.5}
+.warnings ul{margin:0;padding-left:18px}
+
+/* ——— form ——— */
+.form-section{background:#fff;border:1px solid var(--tweak-ink);border-radius:var(--tweak-radius);padding:22px;margin-top:28px}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px 16px}
+@media (max-width: 640px){.form-grid{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:4px}
+.field.full{grid-column:1/-1}
+.field label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--tweak-muted);font-weight:600}
+.field label .req{color:var(--tweak-primary)}
+.field input,.field textarea,.field select{
+  padding:11px 12px;border:1px solid rgba(26,20,16,.2);border-radius:8px;
+  font-family:inherit;font-size:14px;background:#fff;color:var(--tweak-ink);
+}
+.field textarea{min-height:70px;resize:vertical}
+.field input:focus,.field textarea:focus,.field select:focus{outline:2px solid var(--tweak-primary);outline-offset:0;border-color:transparent}
+.field .hint{font-size:11px;color:var(--tweak-muted);margin-top:2px}
+
+/* submit area */
+.submit-area{margin-top:22px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.submit-note{font-size:12px;color:var(--tweak-muted);margin-top:10px;max-width:420px;line-height:1.5}
+.btn{
+  padding:13px 22px;border-radius:100px;border:1.5px solid var(--tweak-ink);
+  font-size:14px;font-weight:600;letter-spacing:.02em;
+  cursor:pointer;display:inline-flex;align-items:center;gap:8px;
+  background:#fff;color:var(--tweak-ink);transition:all .15s;
+  font-family:inherit;
+}
+.btn:hover{background:var(--tweak-paper-2)}
+.btn.primary{background:var(--tweak-primary);color:#fff;border-color:var(--tweak-primary)}
+.btn.primary:hover{background:#8F2E24}
+.btn.primary:disabled{opacity:.4;cursor:not-allowed;background:var(--tweak-muted);border-color:var(--tweak-muted)}
+.btn.ghost{border-color:rgba(26,20,16,.3)}
+
+/* success modal */
+.modal-bg{position:fixed;inset:0;background:rgba(26,20,16,.7);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
+.modal-bg.open{display:flex}
+.modal{background:var(--tweak-paper);border-radius:var(--tweak-radius);max-width:520px;width:100%;padding:32px;border:1px solid var(--tweak-ink);box-shadow:10px 10px 0 var(--tweak-ink)}
+.modal h3{font-family:var(--tweak-font-display);font-size:32px;margin:0 0 6px;font-weight:700}
+.modal .order-no{font-family:ui-monospace,monospace;font-size:14px;color:var(--tweak-muted);margin-bottom:18px;letter-spacing:.08em}
+.modal p{margin:0 0 12px;font-size:14px;line-height:1.6}
+.modal .modal-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.modal .modal-actions .btn{font-size:13px;padding:10px 16px}
+
+/* history */
+.history{margin-top:12px;font-size:11px;color:var(--tweak-muted)}
+.history a{cursor:pointer;text-decoration:underline}
+
+/* ——— tweaks panel ——— */
+.tweak-panel{
+  position:fixed;bottom:20px;right:20px;z-index:60;
+  background:#fff;border:1px solid var(--tweak-ink);border-radius:12px;
+  box-shadow:6px 6px 0 var(--tweak-ink);
+  padding:16px;width:260px;display:none;
+}
+.tweak-panel.open{display:block}
+.tweak-panel h4{font-family:var(--tweak-font-display);margin:0 0 10px;font-size:16px;display:flex;justify-content:space-between;align-items:center}
+.tweak-panel h4 button{background:transparent;border:0;font-size:18px;cursor:pointer;line-height:1;color:var(--tweak-muted)}
+.tweak-row{margin:10px 0;font-size:12px}
+.tweak-row label{display:block;color:var(--tweak-muted);letter-spacing:.08em;text-transform:uppercase;font-weight:600;font-size:10px;margin-bottom:4px}
+.tweak-row .seg{display:flex;border:1px solid rgba(26,20,16,.25);border-radius:6px;overflow:hidden}
+.tweak-row .seg button{flex:1;padding:7px 8px;border:0;background:#fff;cursor:pointer;font-size:11px;font-family:inherit;font-weight:500;color:var(--tweak-ink)}
+.tweak-row .seg button.on{background:var(--tweak-ink);color:var(--tweak-paper)}
+.tweak-row .swatch-row{display:flex;gap:6px}
+.tweak-row .swatch{width:28px;height:28px;border-radius:50%;border:2px solid transparent;cursor:pointer}
+.tweak-row .swatch.on{border-color:var(--tweak-ink)}
+
+/* ——— variants ——— */
+body[data-ui="cards"] .item{display:grid;grid-template-columns:1fr;gap:10px;background:#fff;border:1px solid rgba(26,20,16,.12);border-radius:10px;padding:14px;margin-bottom:10px;border-bottom:1px solid rgba(26,20,16,.12)}
+body[data-ui="cards"] .item .row-x{display:flex;justify-content:space-between;align-items:center;gap:10px}
+body[data-ui="cards"] .item .price{text-align:left}
+
+body[data-ui="compact"] .item{padding:8px 4px}
+body[data-ui="compact"] .item .desc{display:none}
+
+/* footer */
+footer{text-align:center;color:var(--tweak-muted);font-size:11px;padding:28px 20px;letter-spacing:.08em}
+
+/* print layout for receipt */
+@media print{
+  .topbar,.hero .hero-right,.tweak-panel,.cat-tabs,.search-wrap,.submit-area,.qty,.promo,.modal-bg,footer,.form-section{display:none !important}
+  body{background:#fff}
+  .shell{grid-template-columns:1fr;padding:0}
+  .panel{box-shadow:none;border:none;position:static}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="meta">
+    <span><b>TEL</b> (579) 484-2228</span>
+    <span><b>EMAIL</b> hello@thundermaple.ca</span>
+    <span><b>ADDRESS</b> 640 River St, Thunder Bay, ON</span>
+  </div>
+  <div class="meta"><span>Min. 48h advance · Free delivery $80+</span></div>
+</div>
+
+<header class="hero">
+  <div class="hero-inner">
+    <a class="brand" href="#" aria-label="Thunder Maple home">
+      <img class="logo" src="assets/logo.png" alt="Thunder Maple Asian Food Company" />
+    </a>
+    <nav class="hero-nav" aria-label="Primary">
+      <a href="#">Home</a>
+      <a href="#" class="current">Order</a>
+      <a href="#">About</a>
+      <a href="#">Contact</a>
+    </nav>
+    <div class="hero-right">
+      <span class="total-chip"><small>Total</small><b id="headerTotal">$0.00</b></span>
+    </div>
+  </div>
+</header>
+
+<div class="page-title">
+  <h1>Order <em>fresh sushi</em>, delivered on time.</h1>
+  <p>Build your order below — 48h advance notice, free delivery on orders $80+.</p>
+</div>
+
+<main class="shell">
+  <section>
+    <h2 class="section-title"><span class="num">01</span>Build your order</h2>
+    <p class="section-sub">Use the category tabs or search — add quantities with the +/– steppers.</p>
+
+    <div class="search-wrap"><input id="search" type="search" placeholder="Search menu — e.g. salmon, vegan, platter, bubble tea…" /></div>
+
+    <div class="cat-tabs" id="catTabs"></div>
+
+    <div id="menu"></div>
+  </section>
+
+  <aside>
+    <div class="panel">
+      <h2>Your Order <span class="count" id="itemCount">0 items</span></h2>
+      <div id="cartList" class="cart-list"></div>
+      <div class="promo">
+        <div class="promo-row">
+          <input id="promoInput" placeholder="Promo code" maxlength="20" />
+          <button id="promoBtn">Apply</button>
+        </div>
+        <div class="promo-msg" id="promoMsg"></div>
+      </div>
+      <div class="totals">
+        <div class="tr"><span>Subtotal</span><span id="subtotal">$0.00</span></div>
+        <div class="tr" id="discountRow" style="display:none"><span id="discountLabel">Promo</span><span id="discount">–$0.00</span></div>
+        <div class="tr" id="taxRow"><span>HST (13%)</span><span id="tax">$0.00</span></div>
+        <div class="tr" id="deliveryRow"><span>Delivery <small id="deliveryNote" style="opacity:.7"></small></span><span id="delivery">$0.00</span></div>
+        <div class="tr total"><span>Total</span><span id="total">$0.00</span></div>
+      </div>
+      <div class="warnings" id="warnings" style="display:none"></div>
+      <div style="padding:16px 20px">
+        <button class="btn primary" style="width:100%;justify-content:center" onclick="document.getElementById('form-section').scrollIntoView({behavior:'smooth'})">Continue to details →</button>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<div class="shell" style="padding-top:0;padding-bottom:40px;grid-template-columns:1fr">
+  <section class="form-section" id="form-section">
+    <h2 class="section-title"><span class="num">02</span>Contact & delivery</h2>
+    <p class="section-sub">We'll only use this to confirm your order. Fields marked <span style="color:var(--tweak-primary)">*</span> are required.</p>
+    <form id="orderForm" novalidate>
+      <div class="form-grid">
+        <div class="field">
+          <label>Name <span class="req">*</span></label>
+          <input required name="name" autocomplete="name" />
+        </div>
+        <div class="field">
+          <label>Company / Team</label>
+          <input name="company" autocomplete="organization" placeholder="(optional)" />
+        </div>
+        <div class="field">
+          <label>Phone <span class="req">*</span></label>
+          <input required name="phone" type="tel" autocomplete="tel" placeholder="(807) 555-1234" />
+        </div>
+        <div class="field">
+          <label>Email <span class="req">*</span></label>
+          <input required name="email" type="email" autocomplete="email" placeholder="you@company.com" />
+        </div>
+        <div class="field full">
+          <label>Delivery address <span class="req">*</span></label>
+          <input required name="address" autocomplete="street-address" placeholder="Street, unit, city, postal code" />
+        </div>
+        <div class="field">
+          <label>Delivery date <span class="req">*</span></label>
+          <input required name="date" type="date" id="dateField" />
+          <span class="hint" id="dateHint">48 hours advance notice required.</span>
+        </div>
+        <div class="field">
+          <label>Delivery time <span class="req">*</span></label>
+          <input required name="time" type="time" step="900" />
+        </div>
+        <div class="field full">
+          <label>Dietary notes / allergies</label>
+          <textarea name="dietary" placeholder="e.g. One guest is vegetarian, one has a shellfish allergy…"></textarea>
+        </div>
+      </div>
+
+      <div class="submit-area">
+        <button type="submit" class="btn primary" id="submitBtn">Submit order →</button>
+        <button type="button" class="btn ghost" id="printBtn">Print / Save PDF</button>
+      </div>
+      <div class="submit-note" id="submitNote">Your order will be sent to Thunder Maple. You'll get a confirmation email within the same business day.</div>
+      <div class="history">
+        <span id="historyInfo"></span>
+        <a id="historyLink" style="display:none">View order history</a>
+      </div>
+    </form>
+  </section>
+</div>
+
+<footer>
+  THUNDER MAPLE · thundermaple.ca · FB: Thunder Maple · IG: thundermaple.ca
+</footer>
+
+<!-- success modal -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3>Order received 🍁</h3>
+    <div class="order-no" id="modalOrderNo"></div>
+    <p id="modalBody">Thanks — we've logged your order. We'll reach out within the same business day to confirm the delivery window and payment.</p>
+    <p id="modalDetail" style="font-size:12px;color:var(--tweak-muted)"></p>
+    <div class="modal-actions">
+      <button class="btn primary" onclick="closeModal()">Done</button>
+      <button class="btn ghost" onclick="window.print()">Print receipt</button>
+    </div>
+  </div>
+</div>
+
+<!-- tweaks -->
+<div class="tweak-panel" id="tweakPanel">
+  <h4>Tweaks <button onclick="toggleTweaks(false)">×</button></h4>
+  <div class="tweak-row">
+    <label>Accent colour</label>
+    <div class="swatch-row" id="swatches"></div>
+  </div>
+  <div class="tweak-row">
+    <label>Menu layout</label>
+    <div class="seg" id="uiSeg">
+      <button data-v="list">List</button>
+      <button data-v="cards">Cards</button>
+      <button data-v="compact">Compact</button>
+    </div>
+  </div>
+  <div class="tweak-row">
+    <label>Show tax & delivery</label>
+    <div class="seg" id="feesSeg">
+      <button data-v="on">Show</button>
+      <button data-v="off">Hide</button>
+    </div>
+  </div>
+  <div class="tweak-row">
+    <label>Min-order enforcement</label>
+    <div class="seg" id="minSeg">
+      <button data-v="warn">Warn only</button>
+      <button data-v="block">Block</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/*EDITMODE-BEGIN*/
+const TM_TWEAKS = {
+  "accent": "#E8751A",
+  "ui": "list",
+  "fees": "on",
+  "minOrder": "warn",
+  "formspreeUrl": "https://formspree.io/f/xaqajkpn"
+};
+/*EDITMODE-END*/
+
+const HST = 0.13;
+const FREE_DELIVERY_THRESHOLD = 80;
+const DELIVERY_FEE = 10;
+const MIN_ADVANCE_HOURS = 48;
+
+const PROMOS = {
+  'MAPLE10': { type:'pct', value:10, label:'10% off' },
+  'TEAM15':  { type:'pct', value:15, label:'15% off (teams)' },
+  'FIRST5':  { type:'flat', value:5, label:'$5 off first order' },
+};
+
+// state
+const cart = new Map(); // code -> qty
+let activeCat = 'all';
+let searchTerm = '';
+let promo = null;
+
+const flatItems = [];
+TM_MENU.forEach(cat => cat.items.forEach(it => flatItems.push({...it, category: cat.category})));
+const byCode = Object.fromEntries(flatItems.map(i => [i.code, i]));
+
+// ——— render category tabs ———
+const tabs = document.getElementById('catTabs');
+function renderTabs(){
+  tabs.innerHTML = '';
+  const all = document.createElement('button');
+  all.className='cat-tab'+(activeCat==='all'?' active':'');
+  all.textContent='All';
+  const allN=document.createElement('span');allN.className='n';allN.textContent=flatItems.length;all.appendChild(allN);
+  all.onclick=()=>{activeCat='all';renderTabs();renderMenu();};
+  tabs.appendChild(all);
+  TM_MENU.forEach(cat => {
+    const b = document.createElement('button');
+    b.className='cat-tab'+(activeCat===cat.category?' active':'');
+    b.textContent = cat.category.replace(/\s*\(.*?\)/,'');
+    const n=document.createElement('span');n.className='n';n.textContent=cat.items.length;b.appendChild(n);
+    b.onclick=()=>{activeCat=cat.category;renderTabs();renderMenu();};
+    tabs.appendChild(b);
+  });
+}
+
+// ——— render menu ———
+function tagClass(tag){
+  const t=(tag||'').toLowerCase();
+  if(t.includes('popular'))return 'tag-popular';
+  if(t.includes('new'))return 'tag-new';
+  if(t.includes('premium'))return 'tag-premium';
+  if(t.includes('best value'))return 'tag-bestvalue';
+  if(t.includes('vegan'))return 'tag-vegan';
+  if(t.includes('spicy'))return 'tag-spicy';
+  if(t.includes('save'))return 'tag-savings';
+  return 'tag-new';
+}
+
+function renderMenu(){
+  const container = document.getElementById('menu');
+  container.innerHTML = '';
+  const visibleCats = activeCat==='all' ? TM_MENU : TM_MENU.filter(c=>c.category===activeCat);
+
+  let anyShown = false;
+  visibleCats.forEach((cat, idx) => {
+    const items = cat.items.filter(it => {
+      if(!searchTerm) return true;
+      const s = (it.name+' '+it.desc+' '+it.tag+' '+cat.category).toLowerCase();
+      return s.includes(searchTerm.toLowerCase());
+    });
+    if(!items.length) return;
+    anyShown = true;
+    const block = document.createElement('div');
+    block.className='cat-block';
+    const head = document.createElement('div');
+    head.className='cat-head';
+    head.innerHTML = `<h3>${cat.category}</h3><span class="jp">${(idx+1).toString().padStart(2,'0')} / ${TM_MENU.length.toString().padStart(2,'0')}</span>`;
+    block.appendChild(head);
+
+    items.forEach(it => {
+      const qty = cart.get(it.code) || 0;
+      const row = document.createElement('div');
+      row.className = 'item' + (qty>0 ? ' has-qty':'');
+      const tagHtml = it.tag ? `<span class="tag ${tagClass(it.tag)}">${it.tag}</span>` : '';
+      row.innerHTML = `
+        <div class="info">
+          <div class="name"><span class="code">${it.code}</span>${it.name} ${tagHtml}</div>
+          <div class="desc">${it.desc}</div>
+          <div class="meta">Serves ${it.serves}</div>
+        </div>
+        <div class="price">$${it.price}</div>
+        <div class="qty-wrap"></div>
+      `;
+      const qtyWrap = row.querySelector('.qty-wrap');
+      const q = document.createElement('div');
+      q.className='qty';
+      q.innerHTML = `
+        <button aria-label="decrease" ${qty===0?'disabled':''} data-op="-">−</button>
+        <input type="number" min="0" max="99" value="${qty}" />
+        <button aria-label="increase" data-op="+">+</button>
+      `;
+      q.querySelector('[data-op="+"]').onclick=()=>setQty(it.code, qty+1);
+      q.querySelector('[data-op="-"]').onclick=()=>setQty(it.code, Math.max(0, qty-1));
+      q.querySelector('input').onchange=(e)=>setQty(it.code, Math.max(0, Math.min(99, parseInt(e.target.value)||0)));
+      qtyWrap.appendChild(q);
+      // card-variant row-x regroup
+      if(document.body.dataset.ui==='cards'){
+        const info = row.querySelector('.info');
+        const price = row.querySelector('.price');
+        const qw = row.querySelector('.qty-wrap');
+        row.innerHTML='';
+        row.appendChild(info);
+        const rx = document.createElement('div'); rx.className='row-x';
+        rx.appendChild(price); rx.appendChild(qw);
+        row.appendChild(rx);
+      }
+      block.appendChild(row);
+    });
+    container.appendChild(block);
+  });
+  if(!anyShown){
+    container.innerHTML = `<div class="empty" style="padding:60px 20px"><span class="arr">No matches</span>Try a different search or clear the filter.</div>`;
+  }
+}
+
+function setQty(code, q){
+  if(q<=0) cart.delete(code); else cart.set(code, q);
+  renderMenu(); // keep has-qty highlight in sync
+  renderCart();
+}
+
+// ——— cart & totals ———
+function renderCart(){
+  const list = document.getElementById('cartList');
+  list.innerHTML = '';
+  if(cart.size===0){
+    list.innerHTML = `<div class="empty"><span class="arr">Your order is empty</span>Pick items from the menu — they'll appear here.</div>`;
+  } else {
+    for(const [code, qty] of cart){
+      const it = byCode[code];
+      if(!it) continue;
+      const row = document.createElement('div');
+      row.className='cart-row';
+      row.innerHTML = `
+        <div class="q">${qty}×</div>
+        <div class="nm"><div>${it.name}</div><div style="font-size:11px;color:var(--tweak-muted)">${it.code} · $${it.price} ea</div></div>
+        <div class="pr">$${(qty*it.price).toFixed(2)}</div>
+        <button class="rm" title="remove">×</button>
+      `;
+      row.querySelector('.rm').onclick=()=>setQty(code, 0);
+      list.appendChild(row);
+    }
+  }
+  const totals = computeTotals();
+  document.getElementById('itemCount').textContent = totals.units + ' item' + (totals.units===1?'':'s');
+  document.getElementById('subtotal').textContent = money(totals.subtotal);
+  document.getElementById('tax').textContent = money(totals.tax);
+  document.getElementById('delivery').textContent = totals.delivery===0 ? 'FREE' : money(totals.delivery);
+  document.getElementById('deliveryNote').textContent = totals.subtotal >= FREE_DELIVERY_THRESHOLD ? '(free over $80)' : '(under $80)';
+  document.getElementById('total').textContent = money(totals.total);
+  document.getElementById('headerTotal').textContent = money(totals.total);
+  if(totals.discount>0){
+    document.getElementById('discountRow').style.display='flex';
+    document.getElementById('discount').textContent = '–'+money(totals.discount);
+    document.getElementById('discountLabel').textContent = 'Promo · ' + (promo?.code||'');
+  } else {
+    document.getElementById('discountRow').style.display='none';
+  }
+  const showFees = TM_TWEAKS.fees==='on';
+  document.getElementById('taxRow').style.display = showFees ? 'flex':'none';
+  document.getElementById('deliveryRow').style.display = showFees ? 'flex':'none';
+
+  renderWarnings(totals);
+  updateSubmitState(totals);
+}
+
+function money(n){return '$' + n.toFixed(2)}
+
+function computeTotals(){
+  let subtotal=0, units=0, platters=0, indivSets=0;
+  for(const [code, qty] of cart){
+    const it = byCode[code]; if(!it) continue;
+    subtotal += it.price * qty;
+    units += qty;
+    // Team Combos include a platter — count them as platters for min-order check.
+    if(it.category.includes('Platter') || it.category.includes('Team Combos')) platters += qty;
+    else if(it.category.includes('Individual Sets')) indivSets += qty;
+  }
+  let discount = 0;
+  if(promo){
+    if(promo.type==='pct') discount = subtotal * promo.value/100;
+    else if(promo.type==='flat') discount = Math.min(promo.value, subtotal);
+  }
+  const afterDiscount = Math.max(0, subtotal - discount);
+  const tax = TM_TWEAKS.fees==='on' ? afterDiscount * HST : 0;
+  const delivery = (TM_TWEAKS.fees==='on' && subtotal>0) ? (subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE) : 0;
+  const total = afterDiscount + tax + delivery;
+  return { subtotal, discount, tax, delivery, total, units, platters, indivSets };
+}
+
+function renderWarnings(t){
+  const box = document.getElementById('warnings');
+  const issues = [];
+  if(t.units>0 && t.platters===0 && t.indivSets < 5){
+    issues.push(`Minimum order: 1 platter OR 5 individual sets. You have ${t.platters} platter${t.platters===1?'':'s'} and ${t.indivSets} set${t.indivSets===1?'':'s'}.`);
+  }
+  const d = document.getElementById('dateField').value;
+  if(d){
+    const picked = new Date(d+'T00:00');
+    const earliest = new Date(Date.now() + MIN_ADVANCE_HOURS*3600*1000);
+    if(picked < earliest) issues.push(`Delivery date requires ${MIN_ADVANCE_HOURS}h advance notice.`);
+  }
+  if(issues.length){
+    box.style.display='block';
+    box.innerHTML = '<ul><li>' + issues.join('</li><li>') + '</li></ul>';
+  } else box.style.display='none';
+  return issues;
+}
+
+function updateSubmitState(t){
+  const btn = document.getElementById('submitBtn');
+  const mustBlock = TM_TWEAKS.minOrder==='block';
+  const hasIssues = (t.units>0 && t.platters===0 && t.indivSets<5);
+  btn.disabled = t.units===0 || (mustBlock && hasIssues);
+}
+
+// ——— promo ———
+document.getElementById('promoBtn').onclick = () => {
+  const v = document.getElementById('promoInput').value.trim().toUpperCase();
+  if(!v){ promo=null; document.getElementById('promoMsg').textContent=''; renderCart(); return; }
+  if(PROMOS[v]){
+    promo = { ...PROMOS[v], code:v };
+    const msg = document.getElementById('promoMsg');
+    msg.className='promo-msg';
+    msg.textContent = '✓ ' + PROMOS[v].label + ' applied';
+  } else {
+    promo = null;
+    const msg = document.getElementById('promoMsg');
+    msg.className='promo-msg err';
+    msg.textContent = 'Code not recognised. Try MAPLE10, TEAM15, FIRST5.';
+  }
+  renderCart();
+};
+
+// ——— search ———
+document.getElementById('search').oninput = (e) => { searchTerm = e.target.value; renderMenu(); };
+
+// ——— date min ———
+(function setDateMin(){
+  const d = new Date(Date.now() + MIN_ADVANCE_HOURS*3600*1000);
+  const iso = d.toISOString().slice(0,10);
+  document.getElementById('dateField').min = iso;
+  document.getElementById('dateField').value = iso;
+})();
+document.getElementById('dateField').onchange = () => renderCart();
+
+// ——— build payload ———
+function buildPayload(){
+  const form = new FormData(document.getElementById('orderForm'));
+  const items = [];
+  for(const [code, qty] of cart){
+    const it = byCode[code];
+    items.push({ code, name: it.name, unit_price: it.price, qty, line_total: +(qty*it.price).toFixed(2) });
+  }
+  const t = computeTotals();
+  return {
+    order_number: makeOrderNo(),
+    submitted_at: new Date().toISOString(),
+    customer: {
+      name: form.get('name') || '',
+      company: form.get('company') || '',
+      phone: form.get('phone') || '',
+      email: form.get('email') || '',
+    },
+    delivery: {
+      address: form.get('address') || '',
+      date: form.get('date') || '',
+      time: form.get('time') || '',
+      dietary_notes: form.get('dietary') || '',
+    },
+    items,
+    totals: {
+      subtotal: +t.subtotal.toFixed(2),
+      discount: +t.discount.toFixed(2),
+      promo_code: promo?.code || null,
+      tax_hst_13: +t.tax.toFixed(2),
+      delivery_fee: +t.delivery.toFixed(2),
+      total: +t.total.toFixed(2),
+    }
+  };
+}
+
+function makeOrderNo(){
+  const d = new Date();
+  const yyyymmdd = d.toISOString().slice(0,10).replace(/-/g,'');
+  const rnd = Math.floor(Math.random()*9000+1000);
+  return `TM-${yyyymmdd}-${rnd}`;
+}
+
+function payloadToText(p){
+  let s = `THUNDER MAPLE — ORDER ${p.order_number}\nSubmitted: ${p.submitted_at}\n\n`;
+  s += `CUSTOMER\n  Name: ${p.customer.name}\n  Company: ${p.customer.company}\n  Phone: ${p.customer.phone}\n  Email: ${p.customer.email}\n\n`;
+  s += `DELIVERY\n  Address: ${p.delivery.address}\n  Date: ${p.delivery.date}\n  Time: ${p.delivery.time}\n  Dietary: ${p.delivery.dietary_notes||'(none)'}\n\n`;
+  s += `ITEMS\n`;
+  p.items.forEach(i => { s += `  ${i.qty}× [${i.code}] ${i.name} — $${i.unit_price} ea = $${i.line_total.toFixed(2)}\n`; });
+  s += `\nTOTALS\n  Subtotal: $${p.totals.subtotal.toFixed(2)}\n`;
+  if(p.totals.discount>0) s += `  Promo (${p.totals.promo_code}): –$${p.totals.discount.toFixed(2)}\n`;
+  if(p.totals.tax_hst_13>0) s += `  HST (13%): $${p.totals.tax_hst_13.toFixed(2)}\n`;
+  if(p.totals.delivery_fee>0) s += `  Delivery: $${p.totals.delivery_fee.toFixed(2)}\n`;
+  s += `  TOTAL: $${p.totals.total.toFixed(2)}\n`;
+  return s;
+}
+
+// ——— submit handler (Formspree) ———
+document.getElementById('orderForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  if(!form.checkValidity()){ form.reportValidity(); return; }
+  if(cart.size===0) return alert('Please add at least one item.');
+
+  const payload = buildPayload();
+  const totals = computeTotals();
+  const issues = renderWarnings(totals);
+  if(TM_TWEAKS.minOrder==='block' && issues.length){ alert(issues.join('\n')); return; }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+
+  // Flatten payload for Formspree's dashboard — keys become columns.
+  const flat = {
+    _subject: `Order ${payload.order_number} — ${payload.customer.name}`,
+    order_number: payload.order_number,
+    submitted_at: payload.submitted_at,
+    customer_name: payload.customer.name,
+    customer_company: payload.customer.company,
+    customer_phone: payload.customer.phone,
+    customer_email: payload.customer.email,
+    delivery_address: payload.delivery.address,
+    delivery_date: payload.delivery.date,
+    delivery_time: payload.delivery.time,
+    dietary_notes: payload.delivery.dietary_notes,
+    items_summary: payload.items.map(i => `${i.qty}× [${i.code}] ${i.name} @ $${i.unit_price} = $${i.line_total.toFixed(2)}`).join('\n'),
+    subtotal: `$${payload.totals.subtotal.toFixed(2)}`,
+    promo_code: payload.totals.promo_code || '',
+    discount: `$${payload.totals.discount.toFixed(2)}`,
+    tax_hst_13: `$${payload.totals.tax_hst_13.toFixed(2)}`,
+    delivery_fee: `$${payload.totals.delivery_fee.toFixed(2)}`,
+    total: `$${payload.totals.total.toFixed(2)}`,
+    full_receipt: payloadToText(payload),
+  };
+
+  try {
+    const r = await fetch(TM_TWEAKS.formspreeUrl, {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body: JSON.stringify(flat),
+    });
+    if(!r.ok) throw new Error('Submission failed');
+    showSuccess(payload, `A copy has been sent to hello@thundermaple.ca. We'll confirm shortly.`);
+    // reset cart
+    cart.clear();
+    renderMenu();
+    renderCart();
+    form.reset();
+  } catch(err) {
+    alert(`Submission failed — please try again, or call (579) 484-2228.\n\n${err.message}`);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Submit order →';
+  }
+};
+
+document.getElementById('printBtn').onclick = () => window.print();
+
+function showSuccess(p, detail){
+  document.getElementById('modalOrderNo').textContent = p.order_number;
+  document.getElementById('modalDetail').textContent = detail || '';
+  document.getElementById('modalBg').classList.add('open');
+}
+function closeModal(){ document.getElementById('modalBg').classList.remove('open'); }
+window.closeModal = closeModal;
+
+// history link
+function updateHistory(){
+  const hist = JSON.parse(localStorage.getItem('tm_orders')||'[]');
+  const info = document.getElementById('historyInfo');
+  const link = document.getElementById('historyLink');
+  if(hist.length){
+    info.textContent = `${hist.length} previous order${hist.length===1?'':'s'} saved on this device. `;
+    link.style.display='inline';
+    link.onclick = () => {
+      const w = window.open('', '_blank');
+      w.document.write('<pre style="font-family:ui-monospace,monospace;padding:20px;white-space:pre-wrap">' + hist.map(payloadToText).join('\n\n———\n\n') + '</pre>');
+    };
+  }
+}
+updateHistory();
+
+// ——— tweaks panel ———
+const accents = ['#E8751A','#127C36','#4A2C1A','#D4A24C','#B03A2E'];
+const sw = document.getElementById('swatches');
+accents.forEach(c => {
+  const b = document.createElement('div');
+  b.className='swatch'+(c===TM_TWEAKS.accent?' on':'');
+  b.style.background=c;
+  b.onclick = () => { TM_TWEAKS.accent=c; applyTweaks(); persistTweaks(); };
+  sw.appendChild(b);
+});
+function bindSeg(id, key){
+  document.querySelectorAll(`#${id} button`).forEach(b => {
+    b.onclick = () => { TM_TWEAKS[key] = b.dataset.v; applyTweaks(); persistTweaks(); };
+  });
+}
+bindSeg('uiSeg','ui');
+bindSeg('feesSeg','fees');
+bindSeg('minSeg','minOrder');
+
+function applyTweaks(){
+  document.documentElement.style.setProperty('--tweak-primary', TM_TWEAKS.accent);
+  document.body.dataset.ui = TM_TWEAKS.ui;
+  sw.querySelectorAll('.swatch').forEach((s,i)=>s.classList.toggle('on', accents[i]===TM_TWEAKS.accent));
+  ['uiSeg','feesSeg','minSeg'].forEach(id => {
+    const key = {uiSeg:'ui',feesSeg:'fees',minSeg:'minOrder'}[id];
+    document.querySelectorAll(`#${id} button`).forEach(b => b.classList.toggle('on', b.dataset.v===TM_TWEAKS[key]));
+  });
+  renderMenu();
+  renderCart();
+}
+function persistTweaks(){
+  try { window.parent.postMessage({type:'__edit_mode_set_keys', edits: TM_TWEAKS}, '*'); } catch(e){}
+}
+function toggleTweaks(show){
+  document.getElementById('tweakPanel').classList.toggle('open', show);
+}
+window.toggleTweaks = toggleTweaks;
+
+// edit-mode protocol
+window.addEventListener('message', (e) => {
+  if(e.data?.type==='__activate_edit_mode') toggleTweaks(true);
+  if(e.data?.type==='__deactivate_edit_mode') toggleTweaks(false);
+});
+try { window.parent.postMessage({type:'__edit_mode_available'}, '*'); } catch(e){}
+
+// init
+renderTabs();
+renderMenu();
+renderCart();
+applyTweaks();
+</script>
+</body>
+</html>
