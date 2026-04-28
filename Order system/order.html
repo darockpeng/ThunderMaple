@@ -23,6 +23,12 @@
   --tweak-radius: 14px;
   --tweak-font-display:'Fraunces', Georgia, serif;
   --tweak-font-body:'Inter', system-ui, sans-serif;
+  /* unified nav / footer — matches main site */
+  --orange:#E06B2A;
+  --orange-light:#F08C55;
+  --ink:#1E1A16;
+  --ink-soft:#4A3F35;
+  --rule:rgba(122,79,46,.12);
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
@@ -33,43 +39,21 @@ body{
   font-size:15px;
   line-height:1.5;
   -webkit-font-smoothing:antialiased;
+  padding-top:80px;
 }
 a{color:inherit}
 button{font-family:inherit}
 
-/* ——— top bar ——— */
-.topbar{
-  background:var(--tweak-ink);
-  color:var(--tweak-paper);
-  padding:10px 24px;
-  display:flex;align-items:center;justify-content:space-between;
-  font-size:12px;letter-spacing:.08em;text-transform:uppercase;
-}
-.topbar .meta{display:flex;gap:22px;flex-wrap:wrap}
-.topbar .meta span{opacity:.8}
-.topbar .meta b{font-weight:600;opacity:1}
-
-/* ——— hero ——— */
-.hero{
-  background:#fff;
-  padding:14px 24px;
-  border-bottom:1px solid rgba(74,44,26,.15);
-  position:relative;
-}
-.hero-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
-.brand{display:flex;align-items:center;gap:12px}
-.brand img.logo{width:52px;height:auto;display:block}
-.hero-right{display:flex;align-items:center;gap:22px;font-size:13px;color:var(--tweak-ink)}
-.hero-right .total-chip{
-  display:inline-flex;align-items:baseline;gap:8px;
-  background:var(--tweak-paper-2);border:1px solid rgba(74,44,26,.18);
-  padding:6px 14px;border-radius:100px;
-}
-.hero-right .total-chip small{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--tweak-muted)}
-.hero-right .total-chip b{font-family:var(--tweak-font-display);font-size:16px;font-weight:700;color:var(--tweak-ink)}
-.hero-nav{display:flex;gap:18px;font-size:13px;color:var(--tweak-muted)}
-.hero-nav a{text-decoration:none;font-weight:500}
-.hero-nav a.current{color:var(--tweak-primary);font-weight:600}
+/* ——— unified nav (matches main site) ——— */
+.sbar{position:fixed;top:0;left:0;height:3px;background:var(--orange);z-index:500;width:0%;border-radius:0 2px 2px 0;}
+nav#nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:1.2rem 5vw;display:flex;justify-content:space-between;align-items:center;transition:background .4s,box-shadow .4s;}
+nav#nav.scrolled{background:rgba(253,248,242,.95);backdrop-filter:blur(14px);box-shadow:0 1px 0 var(--rule);}
+.nav-links{display:flex;gap:2rem;list-style:none;align-items:center;}
+.nav-links a{font-size:.8rem;font-weight:500;letter-spacing:.06em;color:var(--ink-soft);text-decoration:none;transition:color .25s;}
+.nav-links a:hover{color:var(--orange);}
+.nav-links a.current{color:var(--orange);font-weight:700;}
+.nav-cta{background:var(--orange);color:#fff!important;padding:.55rem 1.5rem;border-radius:999px;transition:background .25s,transform .2s!important;}
+.nav-cta:hover{background:var(--orange-light)!important;transform:translateY(-1px)!important;}
 .page-title{max-width:1200px;margin:22px auto 0;padding:0 24px}
 .page-title h1{font-family:var(--tweak-font-display);font-size:clamp(28px,3.4vw,40px);line-height:1.1;font-weight:700;margin:0 0 4px;letter-spacing:-.01em}
 .page-title h1 em{font-style:italic;color:var(--tweak-primary);font-weight:500}
@@ -289,11 +273,13 @@ body[data-ui="compact"] .item{padding:8px 4px}
 body[data-ui="compact"] .item .desc{display:none}
 
 /* footer */
-footer{text-align:center;color:var(--tweak-muted);font-size:11px;padding:28px 20px;letter-spacing:.08em}
+footer{background:var(--ink);padding:2rem 5vw;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;position:relative;z-index:1;}
+.footer-copy{font-size:.72rem;color:rgba(255,255,255,.25);letter-spacing:.06em;}
+.footer-loc{font-size:.72rem;color:rgba(255,255,255,.3);}
 
 /* print layout for receipt */
 @media print{
-  .topbar,.hero .hero-right,.tweak-panel,.cat-tabs,.search-wrap,.submit-area,.qty,.promo,.modal-bg,footer,.form-section{display:none !important}
+  nav#nav,.tweak-panel,.cat-tabs,.search-wrap,.submit-area,.qty,.promo,.modal-bg,footer,.form-section{display:none !important}
   body{background:#fff}
   .shell{grid-template-columns:1fr;padding:0}
   .panel{box-shadow:none;border:none;position:static}
@@ -302,31 +288,14 @@ footer{text-align:center;color:var(--tweak-muted);font-size:11px;padding:28px 20
 </head>
 <body>
 
-<div class="topbar">
-  <div class="meta">
-    <span><b>TEL</b> (579) 484-2228</span>
-    <span><b>EMAIL</b> hello@thundermaple.ca</span>
-    <span><b>ADDRESS</b> 640 River St, Thunder Bay, ON</span>
-  </div>
-  <div class="meta"><span>Min. 48h advance · Free delivery $80+</span></div>
-</div>
-
-<header class="hero">
-  <div class="hero-inner">
-    <a class="brand" href="#" aria-label="Thunder Maple home">
-      <img class="logo" src="assets/logo.png" alt="Thunder Maple Asian Food Company" />
-    </a>
-    <nav class="hero-nav" aria-label="Primary">
-      <a href="#">Home</a>
-      <a href="#" class="current">Order</a>
-      <a href="#">About</a>
-      <a href="#">Contact</a>
-    </nav>
-    <div class="hero-right">
-      <span class="total-chip"><small>Total</small><b id="headerTotal">$0.00</b></span>
-    </div>
-  </div>
-</header>
+<div class="sbar" id="sbar"></div>
+<nav id="nav">
+  <a href="../index.html" aria-label="Thunder Maple home"><img src="assets/logo.png" alt="Thunder Maple" style="height:34px;width:auto;"></a>
+  <ul class="nav-links">
+    <li><a href="../index.html">Home</a></li>
+    <li><a href="#" class="current">Order</a></li>
+  </ul>
+</nav>
 
 <div class="page-title">
   <h1>Order <em>fresh sushi</em>, delivered on time.</h1>
@@ -426,7 +395,9 @@ footer{text-align:center;color:var(--tweak-muted);font-size:11px;padding:28px 20
 </div>
 
 <footer>
-  THUNDER MAPLE · thundermaple.ca · FB: Thunder Maple · IG: thundermaple.ca
+  <div><img src="assets/logo.png" alt="Thunder Maple" style="height:34px;width:auto;filter:brightness(0) invert(1);opacity:.7;"></div>
+  <div class="footer-copy">© 2025 Thunder Maple Asian Food Company · All rights reserved</div>
+  <div class="footer-loc">📍 Thunder Bay, Ontario</div>
 </footer>
 
 <!-- success modal -->
@@ -642,7 +613,6 @@ function renderCart(){
   document.getElementById('delivery').textContent = totals.delivery===0 ? 'FREE' : money(totals.delivery);
   document.getElementById('deliveryNote').textContent = totals.subtotal >= FREE_DELIVERY_THRESHOLD ? '(free over $80)' : '(under $80)';
   document.getElementById('total').textContent = money(totals.total);
-  document.getElementById('headerTotal').textContent = money(totals.total);
   if(totals.discount>0){
     document.getElementById('discountRow').style.display='flex';
     document.getElementById('discount').textContent = '–'+money(totals.discount);
@@ -925,6 +895,15 @@ window.addEventListener('message', (e) => {
   if(e.data?.type==='__deactivate_edit_mode') toggleTweaks(false);
 });
 try { window.parent.postMessage({type:'__edit_mode_available'}, '*'); } catch(e){}
+
+// scroll progress bar + scrolled nav
+const sbar=document.getElementById('sbar'),navEl=document.getElementById('nav');
+if(sbar&&navEl){
+  window.addEventListener('scroll',()=>{
+    sbar.style.width=(window.scrollY/(document.body.scrollHeight-window.innerHeight)*100)+'%';
+    navEl.classList.toggle('scrolled',window.scrollY>60);
+  });
+}
 
 // init
 renderTabs();
