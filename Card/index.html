@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#1E1A16">
+<meta property="og:title" content="Xin Peng — Thunder Maple">
+<meta property="og:description" content="BD & Brand Manager · Fresh sushi for modern workplaces.">
+<meta property="og:url" content="https://thundermaple.ca/card">
+<title>Xin Peng · Thunder Maple</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Fraunces:ital,wght@1,300;1,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:          #1E1A16;
+    --ink-soft:     #4A3F35;
+    --ink-mist:     #9A8F85;
+    --orange:       #E06B2A;
+    --orange-light: #F08C55;
+    --orange-pale:  #FDF0E6;
+    --cream:        #FDF8F2;
+    --white:        #FFFCF8;
+    --rule:         rgba(122,79,46,0.12);
+    --green:        #3A7D3C;
+    --green-pale:   #EAF4EA;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    min-height: 100vh;
+    background: var(--ink);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  .wrapper {
+    width: 100%;
+    max-width: 420px;
+    min-height: 100vh;
+    background: var(--cream);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: var(--ink);
+    padding: 52px 28px 36px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-kanji {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 700;
+    font-size: 140px;
+    color: rgba(224,107,42,0.08);
+    position: absolute;
+    top: -18px;
+    right: -10px;
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .hero-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: var(--orange);
+    flex-shrink: 0;
+  }
+
+  .hero-eyebrow-text {
+    font-size: 0.60rem;
+    font-weight: 700;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--orange);
+  }
+
+  .hero-name {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 900;
+    font-size: clamp(2rem, 8vw, 2.6rem);
+    color: var(--white);
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+
+  .hero-title {
+    font-size: 0.80rem;
+    font-weight: 400;
+    color: var(--ink-mist);
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+
+  .hero-title strong {
+    color: var(--orange-light);
+    font-weight: 500;
+  }
+
+  .hero-divider {
+    width: 28px;
+    height: 2px;
+    background: var(--orange);
+    border-radius: 999px;
+    margin-bottom: 20px;
+  }
+
+  .hero-tagline {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 0.88rem;
+    color: var(--ink-mist);
+    line-height: 1.6;
+  }
+
+  /* ── SAVE BUTTON ── */
+  .save-section {
+    padding: 24px 28px 0;
+  }
+
+  .save-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 15px 24px;
+    background: var(--orange);
+    border: none;
+    border-radius: 999px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--white);
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: background 0.2s, transform 0.15s;
+    text-decoration: none;
+  }
+
+  .save-btn:active { transform: scale(0.97); background: var(--orange-light); }
+
+  .save-btn svg {
+    width: 16px;
+    height: 16px;
+    stroke: var(--white);
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    flex-shrink: 0;
+  }
+
+  .save-hint {
+    text-align: center;
+    font-size: 0.68rem;
+    color: var(--ink-mist);
+    margin-top: 10px;
+    font-weight: 400;
+  }
+
+  /* ── CONTACT ROWS ── */
+  .contact-section {
+    padding: 24px 28px 0;
+  }
+
+  .section-label {
+    font-size: 0.60rem;
+    font-weight: 700;
+    letter-spacing: 0.40em;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-label::before {
+    content: '';
+    display: block;
+    width: 16px;
+    height: 2px;
+    background: var(--orange);
+    flex-shrink: 0;
+  }
+
+  .contact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .contact-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 13px 0;
+    border-bottom: 0.5px solid var(--rule);
+    text-decoration: none;
+    cursor: default;
+    transition: background 0.2s;
+    border-radius: 8px;
+  }
+
+  a.contact-row { cursor: pointer; }
+  a.contact-row:active { background: var(--orange-pale); }
+
+  .contact-row:last-child { border-bottom: none; }
+
+  .contact-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: var(--orange-pale);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .contact-icon svg {
+    width: 16px;
+    height: 16px;
+    stroke: var(--orange);
+    fill: none;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .contact-text { flex: 1; min-width: 0; }
+
+  .contact-label {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--ink-mist);
+    margin-bottom: 2px;
+  }
+
+  .contact-value {
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .contact-arrow {
+    width: 16px;
+    height: 16px;
+    stroke: var(--ink-mist);
+    fill: none;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    flex-shrink: 0;
+  }
+
+  /* ── ABOUT ── */
+  .about-section {
+    margin: 24px 28px 0;
+    background: var(--ink);
+    border-radius: 18px;
+    padding: 22px 22px;
+  }
+
+  .about-label {
+    font-size: 0.60rem;
+    font-weight: 700;
+    letter-spacing: 0.40em;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .about-label::before {
+    content: '';
+    display: block;
+    width: 14px;
+    height: 2px;
+    background: var(--orange);
+  }
+
+  .about-text {
+    font-size: 0.78rem;
+    line-height: 1.85;
+    color: var(--ink-mist);
+    font-weight: 300;
+  }
+
+  /* ── LINKS ── */
+  .links-section {
+    padding: 24px 28px 0;
+  }
+
+  .link-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 13px 0;
+    border-bottom: 0.5px solid var(--rule);
+    text-decoration: none;
+    transition: background 0.2s;
+    border-radius: 8px;
+  }
+
+  .link-row:last-child { border-bottom: none; }
+  .link-row:active { background: var(--orange-pale); }
+
+  .link-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .link-icon svg {
+    width: 16px;
+    height: 16px;
+    stroke: var(--orange);
+    fill: none;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .link-text { flex: 1; }
+
+  .link-label {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--ink-mist);
+    margin-bottom: 2px;
+  }
+
+  .link-value {
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  /* ── FOOTER ── */
+  .card-footer {
+    margin: 28px 28px 0;
+    padding: 20px 0 36px;
+    border-top: 0.5px solid var(--rule);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-wordmark {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 900;
+    font-size: 0.80rem;
+    color: var(--ink);
+    letter-spacing: 0.02em;
+  }
+
+  .footer-wordmark span { color: var(--orange); }
+
+  .footer-badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--green-pale);
+    border: 1px solid rgba(58,125,60,0.15);
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 0.60rem;
+    font-weight: 700;
+    color: var(--green);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .footer-badge::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--green);
+    flex-shrink: 0;
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--ink);
+    color: var(--white);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    padding: 12px 22px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.08);
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s;
+    opacity: 0;
+    white-space: nowrap;
+    z-index: 100;
+    pointer-events: none;
+  }
+
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-kanji">鮮</div>
+    <div class="hero-eyebrow">
+      <span class="hero-eyebrow-text">Thunder Maple Asian Food Co.</span>
+    </div>
+    <div class="hero-name">Xin Peng</div>
+    <div class="hero-title">BD & Brand Manager &nbsp;·&nbsp; <strong>thundermaple.ca</strong></div>
+    <div class="hero-divider"></div>
+    <div class="hero-tagline">Fresh sushi for modern workplaces.</div>
+  </div>
+
+  <!-- SAVE -->
+  <div class="save-section">
+    <a class="save-btn" id="saveBtn" href="#" download="Xin_Peng_ThunderMaple.vcf">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Save Contact
+    </a>
+    <p class="save-hint">Downloads a contact card — works on iPhone & Android</p>
+  </div>
+
+  <!-- CONTACT -->
+  <div class="contact-section">
+    <div class="section-label">Contact</div>
+    <div class="contact-list">
+
+      <a class="contact-row" href="mailto:hello@thundermaple.ca">
+        <div class="contact-icon">
+          <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </div>
+        <div class="contact-text">
+          <div class="contact-label">Email</div>
+          <div class="contact-value">hello@thundermaple.ca</div>
+        </div>
+        <svg class="contact-arrow" viewBox="0 0 24 24"><polyline points="9,18 15,12 9,6"/></svg>
+      </a>
+
+      <a class="contact-row" href="tel:5794842228">
+        <div class="contact-icon">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.22 1.18 2 2 0 012.19 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.16 6.16l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        </div>
+        <div class="contact-text">
+          <div class="contact-label">Phone</div>
+          <div class="contact-value">579-484-2228</div>
+        </div>
+        <svg class="contact-arrow" viewBox="0 0 24 24"><polyline points="9,18 15,12 9,6"/></svg>
+      </a>
+
+      <div class="contact-row">
+        <div class="contact-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <div class="contact-text">
+          <div class="contact-label">Location</div>
+          <div class="contact-value">640 River St, Thunder Bay, ON</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ABOUT -->
+  <div class="about-section">
+    <div class="about-label">About</div>
+    <div class="about-text">Thunder Maple is a B2B workplace sushi and catering brand based in Thunder Bay, Ontario — delivering fresh sushi platters and team lunch sets to offices, meetings, and corporate events. Free delivery on orders $80+.</div>
+  </div>
+
+  <!-- LINKS -->
+  <div class="links-section">
+    <div class="section-label">Links</div>
+
+    <a class="link-row" href="https://thundermaple.ca" target="_blank">
+      <div class="link-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+      </div>
+      <div class="link-text">
+        <div class="link-label">Website</div>
+        <div class="link-value">thundermaple.ca</div>
+      </div>
+      <svg class="contact-arrow" viewBox="0 0 24 24"><polyline points="9,18 15,12 9,6"/></svg>
+    </a>
+
+    <a class="link-row" href="https://www.linkedin.com/company/thunder-maple" target="_blank">
+      <div class="link-icon">
+        <svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+      </div>
+      <div class="link-text">
+        <div class="link-label">LinkedIn</div>
+        <div class="link-value">Thunder Maple</div>
+      </div>
+      <svg class="contact-arrow" viewBox="0 0 24 24"><polyline points="9,18 15,12 9,6"/></svg>
+    </a>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="card-footer">
+    <div class="footer-wordmark">THUNDER <span>MAPLE</span></div>
+    <div class="footer-badge">Licensed & Permitted</div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast">Contact saved</div>
+
+<script>
+  const vcard = [
+    'BEGIN:VCARD',
+    'VERSION:3.0',
+    'FN:Xin Peng',
+    'N:Peng;Xin;;;',
+    'ORG:Thunder Maple Asian Food Co.',
+    'TITLE:BD & Brand Manager',
+    'TEL;TYPE=WORK,VOICE:+15794842228',
+    'EMAIL;TYPE=WORK:hello@thundermaple.ca',
+    'URL:https://thundermaple.ca',
+    'ADR;TYPE=WORK:;;640 River St;Thunder Bay;ON;;Canada',
+    'NOTE:Fresh sushi for modern workplaces.',
+    'END:VCARD'
+  ].join('\r\n');
+
+  const blob = new Blob([vcard], { type: 'text/vcard' });
+  const url = URL.createObjectURL(blob);
+  const btn = document.getElementById('saveBtn');
+  btn.href = url;
+
+  btn.addEventListener('click', () => {
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2400);
+  });
+</script>
+
+</body>
+</html>
